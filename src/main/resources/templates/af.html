@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>确认授权页面</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+实际情况是用app扫码之后将获取此app上当前用户的信息连同wid编码后发送到扫描到的URL地址进行效验，这里简单起见用手写信息了<br>
+====================================================<br>
+u:<input id="u" type="text" name="u" value=""><br>
+bio:<input id="bio" type="text" name="bio" value=""><br>
+<input type="button" id="submit" value="点击授权">
+<script>
+    $(document).ready(function(){
+        $("#submit").on('click',function(){
+            //wid用来区分是那个浏览器客户端发起的二维码登陆请求
+            var wid = window.location.href.split('=')[1];
+            var u = $("#u").val();
+            var bio = $("#bio").val();
+            //这里还可以添加sign字段，将数据签名，服务器验证是否由合法的手机客户端发出。
+            $.ajax({
+            url:"/web/authorize",
+            type:"GET",
+            data:{
+                wid:wid,
+                u:u,
+                bio:bio
+            },
+            success:function(r){
+                alert(r);
+            },
+            error:function(e){
+                alert(e)
+            }
+            })
+        })
+    })
+
+</script>
+</body>
+</html>

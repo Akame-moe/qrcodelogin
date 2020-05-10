@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>扫码登陆Demo</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+</head>
+
+<body>
+扫描下方二维码登陆<br/>
+<div id="qrcode"></div><br>
+
+<div id="msg" style="color:red;"></div>
+<button id="refresh">点击刷新</button>
+</body>
+
+<script type="text/javascript">
+    var websocket = null;
+    if('WebSocket' in window){
+        websocket = new WebSocket("ws://localhost:8080/websocket");
+    }
+    else{
+        alert('Not support websocket')
+    }
+
+    websocket.onerror = function(){
+        console.log('error.');
+    };
+
+    websocket.onopen = function(event){
+        console.log('connection opened.');
+    }
+
+    //接收到消息的回调方法
+    websocket.onmessage = function(event){
+        console.log(event.data);
+        var d = JSON.parse(event.data)
+
+        if(d.state == "authorize"){
+             //将这个url编码为二维码
+             var url = "http://192.168.1.102:8080/af?wid=" + d.wid;
+             console.log('scan this :' + url);
+            $('#qrcode').qrcode({width: 180,height: 180,text: url});
+        }else if(d.state == "complete"){
+            setCookie('token',d.token);
+            window.location.href= '/profile'
+        }
+    }
+
+    websocket.onclose = function(){
+        console.log("close");
+        $("#msg").text("验证码已失效")
+    }
+
+    window.onbeforeunload = function(){
+        websocket.close();
+    }
+
+
+    function closeWebSocket(){
+        websocket.close();
+    }
+
+    function setCookie(name, value) {
+            var date = new Date();
+            var expires = 10;
+            date.setTime(date.getTime() + expires * 24 * 60 * 60 * 1000)
+            document.cookie = name + "=" + value + ";expires=" + date.toGMTString() + ";path=" + "/";
+     }
+     function delCookie(name) {
+            var exp = new Date();
+            exp.setTime(exp.getTime() - 1);
+            var cval = getCookie(name);
+            if (cval != null) {
+                document.cookie = name + "=" + cval + ";expires=" + exp.toGMTString();
+            }
+       }
+
+      $("#refresh").on('click',function(){
+            location.reload();
+      })
+</script>
+</html>
