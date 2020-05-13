@@ -1,6 +1,7 @@
 package com.gentlehu.qrcodelogin.controller
 
 import com.gentlehu.qrcodelogin.SessionPool
+import com.gentlehu.qrcodelogin.WebSocketSessionPool
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -32,7 +33,8 @@ class HtmlController {
     }
 
     @GetMapping("/af")
-    fun authorizeForm(): String {
+    fun authorizeForm(wid:String): String {
+        WebSocketSessionPool.get(wid)?.sendMessage("""{"state":"scanned","message":"scanned"}""")
         return "af.html"
     }
 

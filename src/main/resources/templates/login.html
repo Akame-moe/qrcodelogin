@@ -37,10 +37,12 @@
         var d = JSON.parse(event.data)
 
         if(d.state == "authorize"){
-             //将这个url编码为二维码
+             //将这个url编码为二维码，这个地址就是扫码之后要访问的地址
              var url = "http://192.168.1.102:8080/af?wid=" + d.wid;
              console.log('scan this :' + url);
             $('#qrcode').qrcode({width: 180,height: 180,text: url});
+        }else if(d.state == "scanned"){
+            $("#msg").text("已扫描，请点击授权");
         }else if(d.state == "complete"){
             setCookie('token',d.token);
             window.location.href= '/profile'
